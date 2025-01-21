@@ -1,0 +1,289 @@
+openapi: 3.0.0
+info:
+  title: Zenestreaming API
+  description: Zenestreaming API
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:3000'
+components: 
+  securitySchemes: 
+    BearerAuth: 
+      type: http 
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /music:
+    get:
+      summary: Minden zene/podcast lekérdezése
+      description: Az összes zene adatainak lekérdezése az adatbázisból
+      responses:
+        '200':
+          description: Az összes zene sikeresen vissza lett adva
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: A zene egyedi azonosítója
+                    title:
+                      type: string
+                      description: A zene címe
+                    artist:
+                      type: string
+                      description: A zene előadója
+                    genre:
+                      type: string
+                      description: A zene műfaja
+                    duration:
+                      type: string
+                      description: A zene hossza (pl. 3:30)
+                    release_date:
+                      type: string
+                      description: A zene kiadási dátuma
+                      format: date
+                    image_url:
+                      type: string
+                      description: A zene borítójához tartozó kép URL-je
+        '500':
+          description: Hiba történt a lekérdezés során
+    post:
+      summary: Új epizód hozzáadása
+      description: Új epizód adatainak hozzáadása az adatbázishoz.
+      security: 
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: A zene egyedi azonosítója
+                title:
+                  type: string
+                  description: A zene címe
+                  example: New Title
+                artist: 
+                  type: string
+                  description: A zene előadója
+                  example: Artist
+                genre:
+                  type: string
+                  description: A zene műfaja
+                  example: podcast
+                duration:
+                  type: string
+                  description: A zene hossza
+                  example: A zene hossza (pl. 3:30)
+                release_date:
+                  type: string
+                  description: Az zene kiadási dátuma
+                  format: date
+                  example: YYYY-MM-DD
+                image_url:
+                  type: string
+                  description: A zene borítójához tartozó kép URL-je
+                  example: http://example.com/images/example.jpg
+      responses:
+        '201':
+          description: Az epizód sikeresen hozzáadva.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Az epizód sikeresen hozzáadva.
+                  episode_id:
+                    type: integer
+                    description: Az újonnan létrehozott epizód azonosítója
+        '400':
+          description: Hibás kérés, hiányzó vagy érvénytelen adatok
+        '500':
+          description: Hiba történt az epizód hozzáadása során
+        
+
+  /music/{id}:
+    get:
+      summary: Zene lekérdezése az id alapján
+      description: A zene adatainak lekérdezése egyedi id alapján.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: A keresett zene egyedi azonosítója.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sikeres válasz, a kért zene adatai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: A zene egyedi azonosítója
+                  title:
+                    type: string
+                    description: A zene címe
+                  artist:
+                    type: string
+                    description: A zene előadója
+                  genre:
+                    type: string
+                    description: A zene műfaja
+                  duration:
+                    type: string
+                    description: A zene hossza (pl. 3:30)
+                  release_date:
+                    type: string
+                    description: A zene kiadási dátuma
+                    format: date
+                  image_url:
+                    type: string
+                    description: A zene borítójához tartozó kép URL-je
+        '404':
+          description: A keresett zene nem található
+        '500':
+          description: Hiba történt a lekérdezés során
+    delete:
+      summary: Zene törlése az id alapján
+      description: Egy adott azonosítóval rendelkező zene törlése az adatbázisból.
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: A törlendő zene egyedi azonosítója.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Sikeres törlés (nincs tartalom a válaszban)
+        '404':
+          description: A törlendő zene nem található
+        '500':
+          description: Hiba történt a törlés során
+    patch:
+      summary: Zene frissítése az id alapján
+      description: Egy adott azonosítóval rendelkező zene adatainak részleges frissítése.
+      security: 
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: A frissítendő zene egyedi azonosítója.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: A zene új címe
+                artist:
+                  type: string
+                  description: A zene új előadója
+                genre:
+                  type: string
+                  description: A zene új műfaja
+                duration:
+                  type: string
+                  description: A zene új hossza (pl. 3:30)
+                release_date:
+                  type: string
+                  description: A zene új kiadási dátuma
+                  format: date
+                image_url:
+                  type: string
+                  description: A zene új borítóképének URL-je
+      responses:
+        '200':
+          description: Sikeres frissítés, a frissített zene adatai
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: A zene egyedi azonosítója
+                  title:
+                    type: string
+                    description: A zene új címe
+                  artist:
+                    type: string
+                    description: A zene új előadója
+                  genre:
+                    type: string
+                    description: A zene új műfaja
+                  duration:
+                    type: string
+                    description: A zene új hossza (pl. 3:30)
+                  release_date:
+                    type: string
+                    description: A zene új kiadási dátuma
+                    format: date
+                  image_url:
+                    type: string
+                    description: A zene új borítóképének URL-je
+        '404':
+          description: A frissítendő zene nem található
+        '400':
+          description: Hibás kérés (pl. hiányzó vagy helytelen mezők)
+        '500':
+          description: Hiba történt a frissítés során
+
+  /newepisodes:
+    get:
+      summary: Legújabb epizódok lekérdezése
+      description: Az összes legújabb epizód adatainak lekérdezése.
+      responses:
+        '200':
+          description: Sikeres válasz, a legújabb epizódok listája
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: A zene egyedi azonosítója
+                    title:
+                      type: string
+                      description: Az zene címe
+                    artist:
+                      type: string
+                      description: Az zene előadója
+                    genre:
+                      type: string
+                      description: Az zene műfaja
+                    duration:
+                      type: string
+                      description: Az zene hossza (pl. 3:30)
+                    release_date:
+                      type: string
+                      description: Az zene kiadási dátuma
+                      format: date
+                    image_url:
+                      type: string
+                      description: A zene borítójához tartozó kép URL-je
+        '500':
+          description: Hiba történt az epizódok lekérdezése során
